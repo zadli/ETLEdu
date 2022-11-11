@@ -1,0 +1,40 @@
+version: "3"
+
+services:
+  postgres:
+    container_name: postgres_airflow
+    image: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=123
+      - POSTGRES_DB=airflow
+      - POSTGRES_USER=airflow
+    networks:
+      net0:
+        ipv4_address: 10.1.1.2
+  airflow:
+    build:
+      context: ./build/airflow
+      network: host
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./dags:/dags
+      - ./build/airflow:/airflow
+      - ./files:/files
+    restart: always
+    networks:
+      net0:
+        ipv4_address: 10.1.1.1
+networks:
+  net0:
+    driver: bridge
+    ipam:
+     config:
+       - subnet: 10.1.0.0/16
+         gateway: 10.1.0.1
+
+  
